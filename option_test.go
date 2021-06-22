@@ -60,8 +60,12 @@ func TestOptionMarshalUnmarshal(t *testing.T) {
 			subs: rdnssTests(),
 		},
 		{
-			name: "DNS search lists",
+			name: "DNS search list",
 			subs: dnsslTests(),
+		},
+		{
+			name: "captive portal",
+			subs: cpTests(),
 		},
 	}
 
@@ -805,6 +809,17 @@ func dnsslTests() []optionSub {
 				ndptest.Zero(2),
 			},
 			ok: true,
+		},
+	}
+}
+
+func cpTests() []optionSub {
+	return []optionSub{
+		{
+			name: "bad, empty",
+			os: []Option{
+				NewCaptivePortal(""),
+			},
 		},
 	}
 }

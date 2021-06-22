@@ -35,6 +35,7 @@ const (
 	optRouteInformation  = 24
 	optRDNSS             = 25
 	optDNSSL             = 31
+	optCaptivePortal     = 37
 )
 
 // A Direction specifies the direction of a LinkLayerAddress Option as a source
@@ -681,6 +682,42 @@ func (r *RawOption) unmarshal(b []byte) error {
 
 	r.Value = make([]byte, l)
 	copy(r.Value, b[2:])
+
+	return nil
+}
+
+// A CaptivePortal is a Captive-Portal option, as described in RFC 8910, Section 2.3.
+type CaptivePortal string
+
+func NewCaptivePortal(uri string) *CaptivePortal {
+	cp := CaptivePortal(uri)
+	return &cp
+}
+
+// Code implements Option.
+func (CaptivePortal) Code() byte { return optCaptivePortal }
+
+// TODO(mdlayher): implement with proper padding and validation logic.
+
+func (cp CaptivePortal) marshal() ([]byte, error) {
+	raw := &RawOption{
+		Type:   cp.Code(),
+		Length: uint8(len(cp)),
+		Value:  make([]byte, len(cp)),
+	}
+
+	copy(raw.Value, []byte(cp))
+
+	return raw.marshal()
+}
+
+func (cp *CaptivePortal) unmarshal(b []byte) error {
+	raw := new(RawOption)
+	if err := raw.unmarshal(b); err != nil {
+		return err
+	}
+
+	*cp = CaptivePortal(string(raw.Value))
 
 	return nil
 }
